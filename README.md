@@ -20,7 +20,7 @@ Audio, more enemy/weapon types, final art, menus, and MVP hardening are still ah
 
 ```bash
 cd /home/shane/arcade-horde
-python3 -m http.server 8000
+python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
 Open <http://localhost:8000> in Chrome.
