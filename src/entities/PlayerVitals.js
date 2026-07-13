@@ -25,5 +25,14 @@ export class PlayerVitals {
     this.damageCooldownRemaining = PlayerVitalsTuning.damageCooldown;
     return true;
   }
-}
 
+  heal(amount) {
+    if (this.isDefeated || amount <= 0) {
+      return false;
+    }
+
+    const previousHealth = this.health;
+    this.health = Math.min(PlayerVitalsTuning.maxHealth, this.health + amount);
+    return this.health > previousHealth;
+  }
+}

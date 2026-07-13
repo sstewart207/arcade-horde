@@ -26,7 +26,7 @@ export class Renderer {
     this.#hudRenderer = new HudRenderer(context);
   }
 
-  render(player, playerVitals, blaster, projectileSystem, enemySystem, waveDirector, isGameOver) {
+  render(player, playerVitals, blaster, projectileSystem, enemySystem, waveDirector, upgradeDirector, runStats, isGameOver, isRunActive) {
     this.#context.clearRect(0, 0, Arena.width, Arena.height);
     this.#drawArena();
     this.#zombieRenderer.draw(enemySystem.zombies);
@@ -34,9 +34,11 @@ export class Renderer {
     this.#projectileRenderer.drawImpacts(projectileSystem.impacts);
     this.#projectileRenderer.drawProjectiles(projectileSystem.projectiles);
     this.#playerRenderer.draw(player, blaster, playerVitals);
-    this.#hudRenderer.draw(playerVitals, waveDirector);
+    this.#hudRenderer.draw(playerVitals, waveDirector, upgradeDirector, runStats);
     if (isGameOver) {
       this.#hudRenderer.drawGameOver();
+    } else if (!isRunActive) {
+      this.#hudRenderer.drawStartScreen();
     }
   }
 

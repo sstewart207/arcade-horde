@@ -49,10 +49,11 @@ export class EnemySystem {
   damage(zombie, amount) {
     zombie.takeDamage(amount);
     if (!zombie.isDefeated) {
-      return;
+      return false;
     }
 
     this.defeatBursts.push(new ImpactBurst({ ...zombie.position }, BlasterTuning.impactDuration));
     this.zombies = this.zombies.filter((candidate) => candidate !== zombie);
+    return true;
   }
 }

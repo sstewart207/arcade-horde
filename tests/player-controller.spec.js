@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("player responds to movement, aim, dash, and blaster input", async ({ page }) => {
   await page.goto("/?debug");
+  await startRun(page);
 
   const canvas = page.locator("#game-canvas");
   await expect(canvas).toBeVisible();
@@ -33,12 +34,42 @@ test("player responds to movement, aim, dash, and blaster input", async ({ page 
   ).toBeGreaterThan(0);
 });
 
+test("a run waits on the title screen until Enter starts Wave 1", async ({ page }) => {
+  await page.goto("/?debug");
+
+  await expect.poll(() => getGameState(page)).toMatchObject({
+    isRunActive: false,
+    isGameOver: false,
+    kills: 0,
+    wave: 0,
+    zombieCount: 0,
+  });
+
+  await page.keyboard.press("Digit1");
+  await startRun(page);
+  await expect.poll(() => getGameState(page)).toMatchObject({
+    isRunActive: true,
+    wave: 1,
+    wavePhase: "active",
+    zombieCount: 4,
+    kills: 0,
+    upgrades: [],
+  });
+});
+
 async function getGameState(page) {
   return page.evaluate(() => window.__arcadeHorde.getDebugSnapshot());
 }
 
+async function startRun(page) {
+  await expect.poll(() => getGameState(page).then((state) => state.isRunActive)).toBe(false);
+  await page.keyboard.press("Enter");
+  await expect.poll(() => getGameState(page).then((state) => state.isRunActive)).toBe(true);
+}
+
 test("blaster damages and defeats chasing zombies", async ({ page }) => {
   await page.goto("/?debug");
+  await startRun(page);
 
   const canvas = page.locator("#game-canvas");
   const box = await canvas.boundingBox();
@@ -72,11 +103,13 @@ test("blaster damages and defeats chasing zombies", async ({ page }) => {
   await page.mouse.up();
 
   await expect.poll(() => getGameState(page).then((state) => state.zombieCount)).toBeLessThan(4);
+  await expect.poll(() => getGameState(page).then((state) => state.kills)).toBeGreaterThan(0);
 });
 
 test("zombie contact can end and restart a run", async ({ page }) => {
   test.setTimeout(15_000);
   await page.goto("/?debug");
+  await startRun(page);
 
   await expect.poll(() => getGameState(page).then((state) => state.health), { timeout: 8_000 }).toBeLessThan(100);
   await expect.poll(() => getGameState(page).then((state) => state.isGameOver), { timeout: 5_000 }).toBe(true);
@@ -85,13 +118,17 @@ test("zombie contact can end and restart a run", async ({ page }) => {
   await expect.poll(() => getGameState(page)).toMatchObject({
     health: 100,
     isGameOver: false,
+    isRunActive: true,
     zombieCount: 4,
     wave: 1,
+    kills: 0,
+    upgrades: [],
   });
 });
 
-test("clearing a wave escalates the next horde", async ({ page }) => {
+test("clearing a wave offers an upgrade before escalating the next horde", async ({ page }) => {
   await page.goto("/?debug");
+  await startRun(page);
   await expect.poll(() => getGameState(page)).toMatchObject({
     wave: 1,
     wavePhase: "active",
@@ -99,10 +136,15 @@ test("clearing a wave escalates the next horde", async ({ page }) => {
   });
 
   await page.evaluate(() => window.__arcadeHorde.clearZombiesForTesting());
-  await expect.poll(() => getGameState(page).then((state) => state.wavePhase)).toBe("clear");
+  await expect.poll(() => getGameState(page).then((state) => state.wavePhase)).toBe("upgrade");
+  await expect.poll(() => getGameState(page).then((state) => state.upgradeChoices)).toHaveLength(3);
+
+  await page.keyboard.press("Digit2");
   await expect.poll(() => getGameState(page)).toMatchObject({
     wave: 2,
     wavePhase: "active",
     zombieCount: 6,
   });
+  await expect.poll(() => getGameState(page).then((state) => state.blaster.projectileDamage)).toBe(2);
+  await expect.poll(() => getGameState(page).then((state) => state.upgrades)).toEqual(["heavy-rounds"]);
 });

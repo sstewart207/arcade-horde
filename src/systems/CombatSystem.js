@@ -1,5 +1,5 @@
 export class CombatSystem {
-  update(projectileSystem, enemySystem) {
+  update(projectileSystem, enemySystem, playerVitals, blaster, runStats) {
     for (const projectile of [...projectileSystem.projectiles]) {
       const target = enemySystem.findHitTarget(projectile);
       if (!target) {
@@ -8,8 +8,11 @@ export class CombatSystem {
 
       projectileSystem.createImpact(projectile.position);
       projectileSystem.remove(projectile);
-      enemySystem.damage(target, 1);
+      const defeated = enemySystem.damage(target, projectile.damage);
+      if (defeated) {
+        runStats.recordKill();
+        playerVitals.heal(blaster.healthOnKill);
+      }
     }
   }
 }
-

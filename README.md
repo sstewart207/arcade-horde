@@ -11,8 +11,10 @@ The first complete survival loop is implemented:
 - Generated, transparent sprites for the human player and basic zombie.
 - Chasing zombie AI, projectile damage, defeat effects, player health, contact damage, game-over, and `R` to restart.
 - Endless waves: Wave 1 begins with four zombies; cleared waves add faster, larger hordes.
+- Each cleared wave pauses for a choice of stacking upgrades: Scattershot, Heavy Rounds, or Blood Rounds.
+- A clean start screen, wave/kill HUD, and restart flow frame each run.
 
-The next planned layer is pickups and upgrades. Audio, more enemy/weapon types, final art, menus, and MVP hardening are still ahead.
+Audio, more enemy/weapon types, final art, menus, and MVP hardening are still ahead.
 
 ## Play locally
 
@@ -27,6 +29,7 @@ Open <http://localhost:8000> in Chrome.
 
 | Control | Action |
 | --- | --- |
+| Enter | Start a run |
 | WASD / arrow keys | Move |
 | Mouse | Aim |
 | Space | Dash |

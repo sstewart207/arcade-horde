@@ -3,6 +3,9 @@ import { BlasterTuning } from "../core/Constants.js";
 export class Blaster {
   cooldownRemaining = 0;
   muzzleFlashRemaining = 0;
+  shotCount = 1;
+  projectileDamage = 1;
+  healthOnKill = 0;
 
   get canFire() {
     return this.cooldownRemaining <= 0;
@@ -23,4 +26,3 @@ export class Blaster {
     this.muzzleFlashRemaining = Math.max(0, this.muzzleFlashRemaining - deltaSeconds);
   }
 }
-

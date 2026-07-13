@@ -19,17 +19,27 @@ export class WeaponController {
       return;
     }
 
-    const direction = player.facingDirection;
     const muzzleDistance = player.radius + BlasterTuning.projectileRadius + 8;
-    this.#projectileSystem.projectiles.push(new Projectile(
-      {
-        x: player.position.x + direction.x * muzzleDistance,
-        y: player.position.y + direction.y * muzzleDistance,
-      },
-      direction,
-      BlasterTuning.projectileSpeed,
-      BlasterTuning.projectileRadius,
-    ));
+    for (const direction of shotDirections(player.facingRadians, this.#blaster.shotCount)) {
+      this.#projectileSystem.projectiles.push(new Projectile(
+        {
+          x: player.position.x + direction.x * muzzleDistance,
+          y: player.position.y + direction.y * muzzleDistance,
+        },
+        direction,
+        BlasterTuning.projectileSpeed,
+        BlasterTuning.projectileRadius,
+        this.#blaster.projectileDamage,
+      ));
+    }
   }
 }
 
+function shotDirections(facingRadians, shotCount) {
+  const spread = Math.min(0.5, 0.16 * (shotCount - 1));
+  return Array.from({ length: shotCount }, (_, index) => {
+    const ratio = shotCount === 1 ? 0 : index / (shotCount - 1) - 0.5;
+    const radians = facingRadians + ratio * spread;
+    return { x: Math.cos(radians), y: Math.sin(radians) };
+  });
+}

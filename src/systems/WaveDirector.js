@@ -10,22 +10,20 @@ export class WaveDirector {
     this.#startWave(enemySystem);
   }
 
-  update(deltaSeconds, enemySystem) {
+  update(enemySystem) {
     if (this.phase === "active" && enemySystem.zombies.length === 0) {
-      this.phase = "clear";
-      this.phaseTimeRemaining = WaveTuning.clearDuration;
-      return;
+      this.phase = "upgrade";
+    }
+  }
+
+  startNextWave(enemySystem) {
+    if (this.phase !== "upgrade") {
+      return false;
     }
 
-    if (this.phase !== "clear") {
-      return;
-    }
-
-    this.phaseTimeRemaining = Math.max(0, this.phaseTimeRemaining - deltaSeconds);
-    if (this.phaseTimeRemaining === 0) {
-      this.wave += 1;
-      this.#startWave(enemySystem);
-    }
+    this.wave += 1;
+    this.#startWave(enemySystem);
+    return true;
   }
 
   #startWave(enemySystem) {
@@ -35,4 +33,3 @@ export class WaveDirector {
     this.phase = "active";
   }
 }
-

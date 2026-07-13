@@ -4,6 +4,8 @@ export class Input {
   #pointer = { x: 0, y: 0 };
   #dashRequested = false;
   #restartRequested = false;
+  #startRequested = false;
+  #upgradeChoice = null;
   #isPrimaryHeld = false;
 
   constructor(canvas) {
@@ -49,6 +51,18 @@ export class Input {
     return requested;
   }
 
+  consumeStartRequest() {
+    const requested = this.#startRequested;
+    this.#startRequested = false;
+    return requested;
+  }
+
+  consumeUpgradeChoice() {
+    const choice = this.#upgradeChoice;
+    this.#upgradeChoice = null;
+    return choice;
+  }
+
   get isPrimaryHeld() {
     return this.#isPrimaryHeld;
   }
@@ -70,6 +84,15 @@ export class Input {
       this.#restartRequested = true;
     }
 
+    if (event.code === "Enter" && !event.repeat) {
+      this.#startRequested = true;
+    }
+
+    const choice = Number.parseInt(event.key, 10);
+    if (choice >= 1 && choice <= 3 && !event.repeat) {
+      this.#upgradeChoice = choice - 1;
+    }
+
     this.#pressedKeys.add(event.code);
   };
 
@@ -81,6 +104,8 @@ export class Input {
     this.#pressedKeys.clear();
     this.#dashRequested = false;
     this.#restartRequested = false;
+    this.#startRequested = false;
+    this.#upgradeChoice = null;
     this.#isPrimaryHeld = false;
   };
 
