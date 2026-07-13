@@ -63,6 +63,13 @@ export class Input {
     return choice;
   }
 
+  clearActionRequests() {
+    this.#dashRequested = false;
+    this.#restartRequested = false;
+    this.#startRequested = false;
+    this.#upgradeChoice = null;
+  }
+
   get isPrimaryHeld() {
     return this.#isPrimaryHeld;
   }
@@ -102,10 +109,7 @@ export class Input {
 
   #onBlur = () => {
     this.#pressedKeys.clear();
-    this.#dashRequested = false;
-    this.#restartRequested = false;
-    this.#startRequested = false;
-    this.#upgradeChoice = null;
+    this.clearActionRequests();
     this.#isPrimaryHeld = false;
   };
 

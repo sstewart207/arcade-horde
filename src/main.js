@@ -9,6 +9,8 @@ if (!(canvas instanceof HTMLCanvasElement)) {
 const game = new Game(canvas);
 game.start();
 
-if (new URLSearchParams(window.location.search).has("debug")) {
+const isLocalDevelopment = ["127.0.0.1", "localhost", "::1"].includes(window.location.hostname);
+
+if (isLocalDevelopment && new URLSearchParams(window.location.search).has("debug")) {
   window.__arcadeHorde = game;
 }

@@ -96,11 +96,18 @@ export class Game {
     } else if (!this.#isRunActive) {
       if (this.#input.consumeStartRequest()) {
         this.#beginRun();
+      } else {
+        this.#input.consumeDashRequest();
+        this.#input.consumeRestartRequest();
+        this.#input.consumeUpgradeChoice();
       }
     } else {
+      this.#input.consumeRestartRequest();
+      this.#input.consumeStartRequest();
       if (this.#waveDirector.phase === "upgrade") {
         const choice = this.#input.consumeUpgradeChoice();
         if (choice !== null && this.#upgradeDirector.choose(choice, this.#blaster)) {
+          this.#input.clearActionRequests();
           this.#waveDirector.startNextWave(this.#enemySystem);
         }
       } else {
@@ -118,6 +125,9 @@ export class Game {
         );
         this.#contactDamageSystem.update(deltaSeconds, this.#player, this.#playerVitals, this.#enemySystem);
         this.#waveDirector.update(this.#enemySystem);
+        if (this.#waveDirector.phase === "upgrade") {
+          this.#input.clearActionRequests();
+        }
         this.#isGameOver = this.#playerVitals.isDefeated;
       }
     }
@@ -157,6 +167,7 @@ export class Game {
   }
 
   #beginRun() {
+    this.#input.clearActionRequests();
     this.#waveDirector.start(this.#enemySystem);
     this.#isRunActive = true;
   }

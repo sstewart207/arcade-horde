@@ -148,3 +148,25 @@ test("clearing a wave offers an upgrade before escalating the next horde", async
   await expect.poll(() => getGameState(page).then((state) => state.blaster.projectileDamage)).toBe(2);
   await expect.poll(() => getGameState(page).then((state) => state.upgrades)).toEqual(["heavy-rounds"]);
 });
+
+test("combat and upgrade inputs do not leak into later game states", async ({ page }) => {
+  test.setTimeout(15_000);
+  await page.goto("/?debug");
+  await startRun(page);
+
+  await page.keyboard.press("KeyR");
+  await expect.poll(() => getGameState(page).then((state) => state.isGameOver), { timeout: 12_000 }).toBe(true);
+  await page.waitForTimeout(250);
+  await expect(getGameState(page)).resolves.toMatchObject({ isGameOver: true, isRunActive: true });
+
+  await page.keyboard.press("KeyR");
+  await expect.poll(() => getGameState(page).then((state) => state.isGameOver)).toBe(false);
+
+  await page.evaluate(() => window.__arcadeHorde.clearZombiesForTesting());
+  await expect.poll(() => getGameState(page).then((state) => state.wavePhase)).toBe("upgrade");
+  await page.keyboard.press("Space");
+  await page.keyboard.press("Digit3");
+  await expect.poll(() => getGameState(page)).toMatchObject({ wave: 2, wavePhase: "active" });
+  await page.waitForTimeout(100);
+  await expect.poll(() => getGameState(page).then((state) => state.dashCooldownRemaining)).toBe(0);
+});
