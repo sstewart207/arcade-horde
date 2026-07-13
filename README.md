@@ -13,6 +13,7 @@ The first complete survival loop is implemented:
 - Endless waves: Wave 1 begins with four zombies; cleared waves add faster, larger hordes.
 - Each cleared wave pauses for a choice of stacking upgrades: Scattershot, Heavy Rounds, or Blood Rounds.
 - A clean start screen, wave/kill HUD, and restart flow frame each run.
+- When the player is hurt, zombies can drop code-drawn medkits; a drought safeguard prevents unfairly long dry streaks.
 
 Audio, more enemy/weapon types, final art, menus, and MVP hardening are still ahead.
 

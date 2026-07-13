@@ -12,6 +12,7 @@ import { WaveDirector } from "../systems/WaveDirector.js";
 import { ProjectileSystem } from "../systems/ProjectileSystem.js";
 import { WeaponController } from "../systems/WeaponController.js";
 import { UpgradeDirector } from "../systems/UpgradeDirector.js";
+import { PickupSystem } from "../systems/PickupSystem.js";
 import { Renderer } from "../rendering/Renderer.js";
 
 export class Game {
@@ -29,6 +30,7 @@ export class Game {
   #contactDamageSystem;
   #waveDirector;
   #upgradeDirector;
+  #pickupSystem;
   #isGameOver = false;
   #isRunActive = false;
   #renderer;
@@ -64,6 +66,7 @@ export class Game {
       isDashing: this.#player.isDashing,
       dashCooldownRemaining: this.#player.dashCooldownRemaining,
       projectileCount: this.#projectileSystem.projectiles.length,
+      medkitCount: this.#pickupSystem.medkits.length,
       impactCount: this.#projectileSystem.impacts.length,
       muzzleFlashRemaining: this.#blaster.muzzleFlashRemaining,
       zombieCount: this.#enemySystem.zombies.length,
@@ -122,7 +125,9 @@ export class Game {
           this.#playerVitals,
           this.#blaster,
           this.#runStats,
+          this.#pickupSystem,
         );
+        this.#pickupSystem.update(deltaSeconds, this.#player, this.#playerVitals);
         this.#contactDamageSystem.update(deltaSeconds, this.#player, this.#playerVitals, this.#enemySystem);
         this.#waveDirector.update(this.#enemySystem);
         if (this.#waveDirector.phase === "upgrade") {
@@ -137,6 +142,7 @@ export class Game {
       this.#playerVitals,
       this.#blaster,
       this.#projectileSystem,
+      this.#pickupSystem,
       this.#enemySystem,
       this.#waveDirector,
       this.#upgradeDirector,
@@ -156,6 +162,7 @@ export class Game {
     this.#enemySystem = new EnemySystem();
     this.#waveDirector = new WaveDirector();
     this.#upgradeDirector = new UpgradeDirector();
+    this.#pickupSystem = new PickupSystem();
     this.#runStats = new RunStats();
     this.#playerController = new PlayerController(this.#player, this.#input);
     this.#weaponController = new WeaponController(this.#blaster, this.#input, this.#projectileSystem);
@@ -174,5 +181,13 @@ export class Game {
 
   clearZombiesForTesting() {
     this.#enemySystem.clearForTesting();
+  }
+
+  spawnMedkitForTesting() {
+    this.#pickupSystem.spawnForTesting(this.#player.position);
+  }
+
+  damagePlayerForTesting() {
+    this.#playerVitals.takeDamage(25);
   }
 }

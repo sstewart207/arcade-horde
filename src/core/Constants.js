@@ -39,3 +39,11 @@ export const WaveTuning = Object.freeze({
   speedIncreasePerWave: 0.12,
   clearDuration: 1.2,
 });
+
+export const MedkitTuning = Object.freeze({
+  radius: 17,
+  healAmount: 25,
+  minimumMissingHealth: 20,
+  dropChance: 0.2,
+  maximumKillsWithoutDrop: 6,
+});

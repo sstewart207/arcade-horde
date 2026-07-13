@@ -170,3 +170,45 @@ test("combat and upgrade inputs do not leak into later game states", async ({ pa
   await page.waitForTimeout(100);
   await expect.poll(() => getGameState(page).then((state) => state.dashCooldownRemaining)).toBe(0);
 });
+
+test("medkit drops are hurt-only, chance-based, and drought-protected", async ({ page }) => {
+  await page.goto("/?debug");
+
+  const result = await page.evaluate(async () => {
+    const { PickupSystem } = await import("/src/systems/PickupSystem.js");
+    const noDropRoll = () => 0.99;
+    const position = { x: 100, y: 100 };
+    const hurtPlayer = { health: 70 };
+    const fullPlayer = { health: 100 };
+
+    const droughtSystem = new PickupSystem(noDropRoll);
+    for (let index = 0; index < 5; index += 1) {
+      droughtSystem.onZombieDefeated(position, hurtPlayer);
+    }
+    const beforeGuarantee = droughtSystem.medkits.length;
+    droughtSystem.onZombieDefeated(position, hurtPlayer);
+
+    const fullHealthSystem = new PickupSystem(() => 0);
+    fullHealthSystem.onZombieDefeated(position, fullPlayer);
+
+    return {
+      beforeGuarantee,
+      afterGuarantee: droughtSystem.medkits.length,
+      fullHealthDrops: fullHealthSystem.medkits.length,
+    };
+  });
+
+  expect(result).toEqual({ beforeGuarantee: 0, afterGuarantee: 1, fullHealthDrops: 0 });
+});
+
+test("a medkit heals an injured player and is consumed", async ({ page }) => {
+  await page.goto("/?debug");
+  await startRun(page);
+
+  await page.evaluate(() => {
+    window.__arcadeHorde.damagePlayerForTesting();
+    window.__arcadeHorde.spawnMedkitForTesting();
+  });
+
+  await expect.poll(() => getGameState(page)).toMatchObject({ health: 100, medkitCount: 0 });
+});

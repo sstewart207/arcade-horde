@@ -4,6 +4,7 @@ import { ProjectileRenderer } from "./ProjectileRenderer.js";
 import { ZombieRenderer } from "./ZombieRenderer.js";
 import { HudRenderer } from "./HudRenderer.js";
 import { SpriteAssets } from "./SpriteAssets.js";
+import { PickupRenderer } from "./PickupRenderer.js";
 
 export class Renderer {
   #context;
@@ -11,6 +12,7 @@ export class Renderer {
   #projectileRenderer;
   #zombieRenderer;
   #hudRenderer;
+  #pickupRenderer;
 
   constructor(canvas) {
     const context = canvas.getContext("2d");
@@ -24,14 +26,16 @@ export class Renderer {
     this.#projectileRenderer = new ProjectileRenderer(context);
     this.#zombieRenderer = new ZombieRenderer(context, sprites.zombie);
     this.#hudRenderer = new HudRenderer(context);
+    this.#pickupRenderer = new PickupRenderer(context);
   }
 
-  render(player, playerVitals, blaster, projectileSystem, enemySystem, waveDirector, upgradeDirector, runStats, isGameOver, isRunActive) {
+  render(player, playerVitals, blaster, projectileSystem, pickupSystem, enemySystem, waveDirector, upgradeDirector, runStats, isGameOver, isRunActive) {
     this.#context.clearRect(0, 0, Arena.width, Arena.height);
     this.#drawArena();
     this.#zombieRenderer.draw(enemySystem.zombies);
     this.#projectileRenderer.drawImpacts(enemySystem.defeatBursts);
     this.#projectileRenderer.drawImpacts(projectileSystem.impacts);
+    this.#pickupRenderer.drawMedkits(pickupSystem.medkits);
     this.#projectileRenderer.drawProjectiles(projectileSystem.projectiles);
     this.#playerRenderer.draw(player, blaster, playerVitals);
     this.#hudRenderer.draw(playerVitals, waveDirector, upgradeDirector, runStats);
