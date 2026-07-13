@@ -212,3 +212,59 @@ test("a medkit heals an injured player and is consumed", async ({ page }) => {
 
   await expect.poll(() => getGameState(page)).toMatchObject({ health: 100, medkitCount: 0 });
 });
+
+test("a run progresses through waves, a medkit, death, and restart without stale state", async ({ page }) => {
+  test.setTimeout(20_000);
+  await page.goto("/?debug");
+  await startRun(page);
+
+  await page.evaluate(() => window.__arcadeHorde.clearZombiesForTesting());
+  await expect.poll(() => getGameState(page).then((state) => state.wavePhase)).toBe("upgrade");
+  await page.keyboard.press("Digit1");
+  await expect.poll(() => getGameState(page)).toMatchObject({
+    wave: 2,
+    wavePhase: "active",
+    zombieCount: 6,
+    upgrades: ["scattershot"],
+  });
+
+  await page.evaluate(() => {
+    window.__arcadeHorde.damagePlayerForTesting();
+    window.__arcadeHorde.spawnMedkitForTesting();
+  });
+  await expect.poll(() => getGameState(page)).toMatchObject({ health: 100, medkitCount: 0 });
+
+  await page.evaluate(() => window.__arcadeHorde.clearZombiesForTesting());
+  await expect.poll(() => getGameState(page).then((state) => state.wavePhase)).toBe("upgrade");
+  await page.keyboard.press("Digit3");
+  await expect.poll(() => getGameState(page)).toMatchObject({
+    wave: 3,
+    wavePhase: "active",
+    zombieCount: 8,
+    upgrades: ["scattershot", "blood-rounds"],
+  });
+
+  for (let hit = 0; hit < 4; hit += 1) {
+    await page.evaluate(() => window.__arcadeHorde.damagePlayerForTesting());
+    await page.waitForTimeout(650);
+  }
+  await expect.poll(() => getGameState(page).then((state) => state.isGameOver)).toBe(true);
+
+  await page.keyboard.press("KeyR");
+  await expect.poll(() => getGameState(page)).toMatchObject({
+    health: 100,
+    isGameOver: false,
+    isRunActive: true,
+    kills: 0,
+    wave: 1,
+    wavePhase: "active",
+    zombieCount: 4,
+    medkitCount: 0,
+    upgrades: [],
+    blaster: {
+      shotCount: 1,
+      projectileDamage: 1,
+      healthOnKill: 0,
+    },
+  });
+});
