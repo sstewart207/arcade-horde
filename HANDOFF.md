@@ -27,6 +27,21 @@ Run tests:
 npm test
 ```
 
+## Windows bootstrap
+
+The project is pushed to `https://github.com/sstewart207/arcade-horde.git` at handoff time.
+
+```powershell
+git clone https://github.com/sstewart207/arcade-horde.git
+cd arcade-horde
+npm ci
+codex "Read HANDOFF.md, inspect git status, then continue the controller-support issue."
+```
+
+- Install/sign in to GitHub, Node.js, Python, and Codex first.
+- Playwright’s local server command works on Linux and Windows (`python3` on Linux, `py -3` on Windows).
+- The exact Linux CLI transcript is local to this machine, so Windows should start a fresh Codex task from `HANDOFF.md` rather than relying on `codex resume`.
+
 ## Recent save points
 
 - `dea34f0 Preserve the arena at every browser aspect ratio`
