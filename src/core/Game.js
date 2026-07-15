@@ -1,5 +1,6 @@
 import { Arena } from "./Constants.js";
 import { Input } from "./Input.js";
+import { Viewport } from "./Viewport.js";
 import { Player } from "../entities/Player.js";
 import { Blaster } from "../entities/Blaster.js";
 import { PlayerVitals } from "../entities/PlayerVitals.js";
@@ -17,6 +18,7 @@ import { Renderer } from "../rendering/Renderer.js";
 
 export class Game {
   #canvas;
+  #viewport;
   #input;
   #player;
   #playerVitals;
@@ -39,11 +41,13 @@ export class Game {
 
   constructor(canvas) {
     this.#canvas = canvas;
-    this.#input = new Input(canvas);
+    this.#viewport = new Viewport(canvas);
+    this.#input = new Input(canvas, this.#viewport);
     this.#combatSystem = new CombatSystem();
     this.#contactDamageSystem = new ContactDamageSystem();
-    this.#renderer = new Renderer(canvas);
+    this.#renderer = new Renderer(canvas, this.#viewport);
     this.#startRun();
+    window.addEventListener("resize", this.#constrainEntitiesToArena);
   }
 
   start() {
@@ -53,11 +57,14 @@ export class Game {
   stop() {
     cancelAnimationFrame(this.#animationFrameId);
     this.#input.destroy();
+    this.#viewport.destroy();
+    window.removeEventListener("resize", this.#constrainEntitiesToArena);
   }
 
   getDebugSnapshot() {
     return {
       position: { ...this.#player.position },
+      arena: { width: Arena.width, height: Arena.height },
       velocity: { ...this.#player.velocity },
       health: this.#playerVitals.health,
       isGameOver: this.#isGameOver,
@@ -71,6 +78,7 @@ export class Game {
       dashCooldownRemaining: this.#player.dashCooldownRemaining,
       projectileCount: this.#projectileSystem.projectiles.length,
       medkitCount: this.#pickupSystem.medkits.length,
+      medkits: this.#pickupSystem.medkits.map((medkit) => ({ position: { ...medkit.position } })),
       impactCount: this.#projectileSystem.impacts.length,
       muzzleFlashRemaining: this.#blaster.muzzleFlashRemaining,
       zombieCount: this.#enemySystem.zombies.length,
@@ -189,11 +197,23 @@ export class Game {
     this.#enemySystem.clearForTesting();
   }
 
-  spawnMedkitForTesting() {
-    this.#pickupSystem.spawnForTesting(this.#player.position);
+  spawnMedkitForTesting(position = this.#player.position) {
+    this.#pickupSystem.spawnForTesting(position);
   }
 
   damagePlayerForTesting() {
     this.#playerVitals.takeDamage(25);
   }
+
+  #constrainEntitiesToArena = () => {
+    const edge = Arena.padding + this.#player.radius;
+    this.#player.position.x = clamp(this.#player.position.x, edge, Arena.width - edge);
+    this.#player.position.y = clamp(this.#player.position.y, edge, Arena.height - edge);
+    this.#enemySystem.clampToArena();
+    this.#pickupSystem.clampToArena();
+  };
+}
+
+function clamp(value, minimum, maximum) {
+  return Math.max(minimum, Math.min(value, maximum));
 }

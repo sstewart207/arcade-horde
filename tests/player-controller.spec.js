@@ -124,6 +124,34 @@ test("a run waits on the title screen until Enter starts Wave 1", async ({ page 
   });
 });
 
+test("the responsive arena fills a non-16:9 window without changing world scale", async ({ page }) => {
+  await page.setViewportSize({ width: 1_600, height: 800 });
+  await page.goto("/?debug");
+
+  const canvas = page.locator("#game-canvas");
+  await expect(canvas).toHaveCSS("width", "1600px");
+  await expect(canvas).toHaveCSS("height", "800px");
+  await expect.poll(() => getGameState(page).then((state) => state.arena)).toEqual({
+    width: 1_440,
+    height: 720,
+  });
+
+  await startRun(page);
+  const state = await getGameState(page);
+  expect(state.position).toMatchObject({ x: 720, y: 360 });
+});
+
+test("resizing a run keeps existing pickups inside the responsive arena", async ({ page }) => {
+  await page.setViewportSize({ width: 1_600, height: 800 });
+  await page.goto("/?debug");
+  await startRun(page);
+
+  await page.evaluate(() => window.__arcadeHorde.spawnMedkitForTesting({ x: 1_400, y: 360 }));
+  await page.setViewportSize({ width: 1_280, height: 720 });
+
+  await expect.poll(() => getGameState(page).then((state) => state.medkits[0]?.position.x)).toBe(1_231);
+});
+
 async function getGameState(page) {
   return page.evaluate(() => window.__arcadeHorde.getDebugSnapshot());
 }

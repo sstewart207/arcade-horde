@@ -8,9 +8,11 @@
     <link rel="stylesheet" href="styles/game.css" />
   </head>
   <body>
-    <main class="game-shell">
+    <main class="game-stage">
       <canvas id="game-canvas" width="1280" height="720" aria-label="Arcade Horde prototype"></canvas>
-      <p class="controls">Move: WASD / arrow keys · Aim: mouse · Dash: Space · Fire: left-click · Pick upgrades: 1 / 2 / 3 · Restart: R</p>
+      <button class="stage-button fullscreen-button" id="fullscreen-button" type="button" aria-label="Enter fullscreen">
+        Fullscreen <span aria-hidden="true">⛶</span>
+      </button>
     </main>
     <script type="module" src="src/main.js"></script>
   </body>

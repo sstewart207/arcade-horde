@@ -1,4 +1,4 @@
-import { MedkitTuning, PlayerVitalsTuning } from "../core/Constants.js";
+import { Arena, MedkitTuning, PlayerVitalsTuning } from "../core/Constants.js";
 import { Medkit } from "../entities/Medkit.js";
 
 export class PickupSystem {
@@ -48,6 +48,14 @@ export class PickupSystem {
   spawnForTesting(position) {
     this.medkits.push(new Medkit(position));
   }
+
+  clampToArena() {
+    for (const medkit of this.medkits) {
+      const edge = Arena.padding + medkit.radius;
+      medkit.position.x = clamp(medkit.position.x, edge, Arena.width - edge);
+      medkit.position.y = clamp(medkit.position.y, edge, Arena.height - edge);
+    }
+  }
 }
 
 function isTouching(player, medkit) {
@@ -55,4 +63,8 @@ function isTouching(player, medkit) {
     player.position.x - medkit.position.x,
     player.position.y - medkit.position.y,
   ) <= player.radius + medkit.radius;
+}
+
+function clamp(value, minimum, maximum) {
+  return Math.max(minimum, Math.min(value, maximum));
 }

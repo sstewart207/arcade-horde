@@ -1,19 +1,13 @@
-import { BlasterTuning } from "../core/Constants.js";
+import { Arena, BlasterTuning } from "../core/Constants.js";
 import { ImpactBurst } from "../entities/ImpactBurst.js";
 import { Zombie } from "../entities/Zombie.js";
-
-const spawnPoints = [
-  { x: 180, y: 160 },
-  { x: 1080, y: 170 },
-  { x: 1100, y: 560 },
-  { x: 190, y: 570 },
-];
 
 export class EnemySystem {
   zombies = [];
   defeatBursts = [];
 
   spawnWave(enemyCount, speedMultiplier) {
+    const spawnPoints = getSpawnPoints();
     this.zombies = Array.from({ length: enemyCount }, (_, index) => {
       const spawnPoint = spawnPoints[index % spawnPoints.length];
       const ring = Math.floor(index / spawnPoints.length);
@@ -27,10 +21,17 @@ export class EnemySystem {
     this.zombies = [];
   }
 
+  clampToArena() {
+    for (const zombie of this.zombies) {
+      clampPositionToArena(zombie.position, zombie.radius);
+    }
+  }
+
   update(deltaSeconds, player) {
     for (const zombie of this.zombies) {
       zombie.tick(deltaSeconds);
       zombie.moveToward(player.position, player.radius, deltaSeconds);
+      clampPositionToArena(zombie.position, zombie.radius);
     }
 
     for (const burst of this.defeatBursts) {
@@ -64,6 +65,17 @@ export class EnemySystem {
     this.zombies = this.zombies.filter((candidate) => candidate !== zombie);
     return true;
   }
+}
+
+function getSpawnPoints() {
+  const insetX = Arena.padding + 148;
+  const insetY = Arena.padding + 128;
+  return [
+    { x: insetX, y: insetY },
+    { x: Arena.width - insetX + 20, y: insetY + 10 },
+    { x: Arena.width - insetX, y: Arena.height - insetY + 8 },
+    { x: insetX + 10, y: Arena.height - insetY + 18 },
+  ];
 }
 
 function closestPointOnSegment(point, start, end) {
@@ -117,4 +129,14 @@ function segmentCircleEntryPoint(center, start, end, radius) {
 function normalized(vector) {
   const length = Math.hypot(vector.x, vector.y) || 1;
   return { x: vector.x / length, y: vector.y / length };
+}
+
+function clampPositionToArena(position, radius) {
+  const edge = Arena.padding + radius;
+  position.x = clamp(position.x, edge, Arena.width - edge);
+  position.y = clamp(position.y, edge, Arena.height - edge);
+}
+
+function clamp(value, minimum, maximum) {
+  return Math.max(minimum, Math.min(value, maximum));
 }

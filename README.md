@@ -14,6 +14,7 @@ The first complete survival loop is implemented:
 - Each cleared wave pauses for a choice of stacking upgrades: Scattershot, Heavy Rounds, or Blood Rounds.
 - A clean start screen, wave/kill HUD, and restart flow frame each run.
 - When the player is hurt, zombies can drop code-drawn medkits; a drought safeguard prevents unfairly long dry streaks.
+- The arena fills the browser window without stretching the game world; wider windows become wider playable arenas. An optional fullscreen control lives in the bottom-right corner.
 
 Audio, more enemy/weapon types, final art, menus, and MVP hardening are still ahead.
 
@@ -36,6 +37,7 @@ Open <http://localhost:8000> in Chrome.
 | Space | Dash |
 | Left-click / hold | Fire blaster |
 | R | Restart after game over |
+| Fullscreen button | Enter or exit fullscreen |
 
 ## Tests
 

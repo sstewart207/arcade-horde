@@ -1,8 +1,8 @@
-export const Arena = Object.freeze({
+export const Arena = {
   width: 1280,
   height: 720,
   padding: 32,
-});
+};
 
 export const PlayerTuning = Object.freeze({
   radius: 22,

@@ -7,19 +7,23 @@ import { PickupRenderer } from "./PickupRenderer.js";
 
 export class Renderer {
   #context;
+  #canvas;
+  #viewport;
   #playerRenderer;
   #projectileRenderer;
   #zombieRenderer;
   #hudRenderer;
   #pickupRenderer;
 
-  constructor(canvas) {
+  constructor(canvas, viewport) {
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("A 2D canvas context is required.");
     }
 
     this.#context = context;
+    this.#canvas = canvas;
+    this.#viewport = viewport;
     this.#playerRenderer = new PlayerRenderer(context);
     this.#projectileRenderer = new ProjectileRenderer(context);
     this.#zombieRenderer = new ZombieRenderer(context);
@@ -28,7 +32,10 @@ export class Renderer {
   }
 
   render(player, playerVitals, blaster, projectileSystem, pickupSystem, enemySystem, waveDirector, upgradeDirector, runStats, isGameOver, isRunActive) {
-    this.#context.clearRect(0, 0, Arena.width, Arena.height);
+    this.#context.setTransform(1, 0, 0, 1, 0, 0);
+    this.#context.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
+    const scale = this.#viewport.scale * this.#viewport.pixelRatio;
+    this.#context.setTransform(scale, 0, 0, scale, 0, 0);
     this.#drawArena();
     this.#zombieRenderer.draw(enemySystem.zombies);
     this.#projectileRenderer.drawImpacts(enemySystem.defeatBursts);

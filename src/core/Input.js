@@ -9,8 +9,11 @@ export class Input {
   #upgradeChoice = null;
   #isPrimaryHeld = false;
 
-  constructor(canvas) {
+  #viewport;
+
+  constructor(canvas, viewport) {
     this.#canvas = canvas;
+    this.#viewport = viewport;
     window.addEventListener("keydown", this.#onKeyDown);
     window.addEventListener("keyup", this.#onKeyUp);
     window.addEventListener("blur", this.#onBlur);
@@ -119,11 +122,7 @@ export class Input {
   };
 
   #onPointerMove = (event) => {
-    const bounds = this.#canvas.getBoundingClientRect();
-    this.#pointer = {
-      x: (event.clientX - bounds.left) * (this.#canvas.width / bounds.width),
-      y: (event.clientY - bounds.top) * (this.#canvas.height / bounds.height),
-    };
+    this.#pointer = this.#viewport.toWorldPoint(event.clientX, event.clientY);
     this.#hasPointer = true;
   };
 
