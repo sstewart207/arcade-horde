@@ -4,6 +4,10 @@ export class ContactDamageSystem {
   update(deltaSeconds, player, playerVitals, enemySystem) {
     playerVitals.tick(deltaSeconds);
 
+    if (player.isDashing) {
+      return;
+    }
+
     const isInContact = enemySystem.zombies.some((zombie) => {
       const x = zombie.position.x - player.position.x;
       const y = zombie.position.y - player.position.y;
@@ -15,4 +19,3 @@ export class ContactDamageSystem {
     }
   }
 }
-

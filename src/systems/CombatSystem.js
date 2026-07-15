@@ -1,17 +1,17 @@
 export class CombatSystem {
   update(projectileSystem, enemySystem, playerVitals, blaster, runStats, pickupSystem) {
     for (const projectile of [...projectileSystem.projectiles]) {
-      const target = enemySystem.findHitTarget(projectile);
-      if (!target) {
+      const hit = enemySystem.findHitTarget(projectile);
+      if (!hit) {
         continue;
       }
 
-      projectileSystem.createImpact(projectile.position);
+      projectileSystem.createImpact(hit.position);
       projectileSystem.remove(projectile);
-      const defeated = enemySystem.damage(target, projectile.damage);
+      const defeated = enemySystem.damage(hit.zombie, projectile.damage, hit.position, hit.direction);
       if (defeated) {
         runStats.recordKill();
-        pickupSystem.onZombieDefeated(target.position, playerVitals);
+        pickupSystem.onZombieDefeated(hit.zombie.position, playerVitals);
         playerVitals.heal(blaster.healthOnKill);
       }
     }

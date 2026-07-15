@@ -34,6 +34,73 @@ test("player responds to movement, aim, dash, and blaster input", async ({ page 
   ).toBeGreaterThan(0);
 });
 
+test("movement exposes locomotion feedback and projectiles cannot tunnel through a zombie", async ({ page }) => {
+  await page.goto("/?debug");
+  await startRun(page);
+
+  await page.keyboard.down("KeyD");
+  await expect.poll(() => getGameState(page)).toMatchObject({
+    locomotion: "walk",
+    moveFacingRadians: 0,
+  });
+  await expect.poll(() => getGameState(page).then((state) => state.velocity.x)).toBeGreaterThan(100);
+  await page.keyboard.up("KeyD");
+  await expect.poll(() => getGameState(page)).toMatchObject({ locomotion: "idle" });
+
+  const hit = await page.evaluate(async () => {
+    const [{ EnemySystem }, { Projectile }, { Zombie }] = await Promise.all([
+      import("/src/systems/EnemySystem.js"),
+      import("/src/entities/Projectile.js"),
+      import("/src/entities/Zombie.js"),
+    ]);
+    const enemies = new EnemySystem();
+    enemies.zombies = [new Zombie(150, 100)];
+    const projectile = new Projectile({ x: 50, y: 100 }, { x: 1, y: 0 }, 2_400, 7);
+    projectile.move(0.05);
+    const hit = enemies.findHitTarget(projectile);
+    if (!hit) {
+      return null;
+    }
+    enemies.damage(hit.zombie, 1, hit.position, hit.direction);
+    const insideStartEnemies = new EnemySystem();
+    insideStartEnemies.zombies = [new Zombie(54, 100)];
+    const insideStartProjectile = new Projectile({ x: 55, y: 100 }, { x: 1, y: 0 }, 2_400, 7);
+    insideStartProjectile.move(0.05);
+    const insideStartHit = insideStartEnemies.findHitTarget(insideStartProjectile);
+    if (!insideStartHit) {
+      return null;
+    }
+    insideStartEnemies.damage(
+      insideStartHit.zombie,
+      1,
+      insideStartHit.position,
+      insideStartHit.direction,
+    );
+    return {
+      position: hit.position,
+      knockbackVelocity: hit.zombie.knockbackVelocity,
+      insideStartKnockbackVelocity: insideStartHit.zombie.knockbackVelocity,
+    };
+  });
+  expect(hit?.position.x).toBeCloseTo(119, 5);
+  expect(hit?.position.y).toBeCloseTo(100, 5);
+  expect(hit?.knockbackVelocity.x).toBeGreaterThan(0);
+  expect(hit?.insideStartKnockbackVelocity.x).toBeGreaterThan(0);
+
+  const canvas = page.locator("#game-canvas");
+  const box = await canvas.boundingBox();
+  if (!box) {
+    throw new Error("Canvas has no visible bounds.");
+  }
+  await page.mouse.move(box.x + box.width * 0.9, box.y + box.height / 2);
+  await page.keyboard.press("Space");
+  await page.waitForTimeout(180);
+  await page.keyboard.down("KeyA");
+  await page.waitForTimeout(80);
+  await expect.poll(() => getGameState(page).then((state) => state.velocity.x)).toBeLessThan(0);
+  await page.keyboard.up("KeyA");
+});
+
 test("a run waits on the title screen until Enter starts Wave 1", async ({ page }) => {
   await page.goto("/?debug");
 

@@ -2,6 +2,7 @@ export class Input {
   #canvas;
   #pressedKeys = new Set();
   #pointer = { x: 0, y: 0 };
+  #hasPointer = false;
   #dashRequested = false;
   #restartRequested = false;
   #startRequested = false;
@@ -37,6 +38,10 @@ export class Input {
 
   getPointerPosition() {
     return this.#pointer;
+  }
+
+  get hasPointer() {
+    return this.#hasPointer;
   }
 
   consumeDashRequest() {
@@ -119,6 +124,7 @@ export class Input {
       x: (event.clientX - bounds.left) * (this.#canvas.width / bounds.width),
       y: (event.clientY - bounds.top) * (this.#canvas.height / bounds.height),
     };
+    this.#hasPointer = true;
   };
 
   #onPointerDown = (event) => {

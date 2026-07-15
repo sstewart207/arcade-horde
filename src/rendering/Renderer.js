@@ -3,7 +3,6 @@ import { PlayerRenderer } from "./PlayerRenderer.js";
 import { ProjectileRenderer } from "./ProjectileRenderer.js";
 import { ZombieRenderer } from "./ZombieRenderer.js";
 import { HudRenderer } from "./HudRenderer.js";
-import { SpriteAssets } from "./SpriteAssets.js";
 import { PickupRenderer } from "./PickupRenderer.js";
 
 export class Renderer {
@@ -21,10 +20,9 @@ export class Renderer {
     }
 
     this.#context = context;
-    const sprites = new SpriteAssets();
-    this.#playerRenderer = new PlayerRenderer(context, sprites.player);
+    this.#playerRenderer = new PlayerRenderer(context);
     this.#projectileRenderer = new ProjectileRenderer(context);
-    this.#zombieRenderer = new ZombieRenderer(context, sprites.zombie);
+    this.#zombieRenderer = new ZombieRenderer(context);
     this.#hudRenderer = new HudRenderer(context);
     this.#pickupRenderer = new PickupRenderer(context);
   }

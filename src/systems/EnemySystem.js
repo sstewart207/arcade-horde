@@ -29,6 +29,7 @@ export class EnemySystem {
 
   update(deltaSeconds, player) {
     for (const zombie of this.zombies) {
+      zombie.tick(deltaSeconds);
       zombie.moveToward(player.position, player.radius, deltaSeconds);
     }
 
@@ -39,15 +40,22 @@ export class EnemySystem {
   }
 
   findHitTarget(projectile) {
-    return this.zombies.find((zombie) => {
-      const x = projectile.position.x - zombie.position.x;
-      const y = projectile.position.y - zombie.position.y;
-      return Math.hypot(x, y) <= projectile.radius + zombie.radius;
-    });
+    for (const zombie of this.zombies) {
+      const radius = projectile.radius + zombie.radius;
+      const closestPoint = closestPointOnSegment(zombie.position, projectile.previousPosition, projectile.position);
+      if (closestPoint.distance <= radius) {
+        return {
+          zombie,
+          position: segmentCircleEntryPoint(zombie.position, projectile.previousPosition, projectile.position, radius),
+          direction: normalized(projectile.velocity),
+        };
+      }
+    }
+    return null;
   }
 
-  damage(zombie, amount) {
-    zombie.takeDamage(amount);
+  damage(zombie, amount, hitPosition, hitDirection) {
+    zombie.takeDamage(amount, hitPosition, hitDirection);
     if (!zombie.isDefeated) {
       return false;
     }
@@ -56,4 +64,57 @@ export class EnemySystem {
     this.zombies = this.zombies.filter((candidate) => candidate !== zombie);
     return true;
   }
+}
+
+function closestPointOnSegment(point, start, end) {
+  const segmentX = end.x - start.x;
+  const segmentY = end.y - start.y;
+  const lengthSquared = segmentX * segmentX + segmentY * segmentY;
+  if (lengthSquared === 0) {
+    return {
+      position: { ...start },
+      distance: Math.hypot(point.x - start.x, point.y - start.y),
+    };
+  }
+
+  const projection = ((point.x - start.x) * segmentX + (point.y - start.y) * segmentY) / lengthSquared;
+  const t = Math.max(0, Math.min(1, projection));
+  const position = {
+    x: start.x + segmentX * t,
+    y: start.y + segmentY * t,
+  };
+  return {
+    position,
+    distance: Math.hypot(point.x - position.x, point.y - position.y),
+  };
+}
+
+function segmentCircleEntryPoint(center, start, end, radius) {
+  const directionX = end.x - start.x;
+  const directionY = end.y - start.y;
+  const fromCenterX = start.x - center.x;
+  const fromCenterY = start.y - center.y;
+  const lengthSquared = directionX * directionX + directionY * directionY;
+  if (lengthSquared === 0) {
+    return { ...start };
+  }
+
+  const b = 2 * (fromCenterX * directionX + fromCenterY * directionY);
+  const c = fromCenterX * fromCenterX + fromCenterY * fromCenterY - radius * radius;
+  const discriminant = b * b - 4 * lengthSquared * c;
+  if (discriminant < 0) {
+    return { ...start };
+  }
+
+  const entry = (-b - Math.sqrt(discriminant)) / (2 * lengthSquared);
+  const t = Math.max(0, Math.min(1, entry));
+  return {
+    x: start.x + directionX * t,
+    y: start.y + directionY * t,
+  };
+}
+
+function normalized(vector) {
+  const length = Math.hypot(vector.x, vector.y) || 1;
+  return { x: vector.x / length, y: vector.y / length };
 }

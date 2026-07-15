@@ -8,6 +8,13 @@ export class ProjectileRenderer {
   drawProjectiles(projectiles) {
     for (const projectile of projectiles) {
       const context = this.#context;
+      context.strokeStyle = "rgb(255 218 77 / 62%)";
+      context.lineWidth = projectile.radius * 1.4;
+      context.lineCap = "round";
+      context.beginPath();
+      context.moveTo(projectile.previousPosition.x, projectile.previousPosition.y);
+      context.lineTo(projectile.position.x, projectile.position.y);
+      context.stroke();
       context.fillStyle = "#ff8a4c";
       context.beginPath();
       context.arc(projectile.position.x, projectile.position.y, projectile.radius + 5, 0, Math.PI * 2);
@@ -33,4 +40,3 @@ export class ProjectileRenderer {
     }
   }
 }
-

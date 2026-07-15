@@ -3,6 +3,8 @@ import { BlasterTuning } from "../core/Constants.js";
 export class Blaster {
   cooldownRemaining = 0;
   muzzleFlashRemaining = 0;
+  recoilRemaining = 0;
+  shotId = 0;
   shotCount = 1;
   projectileDamage = 1;
   healthOnKill = 0;
@@ -18,11 +20,14 @@ export class Blaster {
 
     this.cooldownRemaining = BlasterTuning.fireInterval;
     this.muzzleFlashRemaining = BlasterTuning.muzzleFlashDuration;
+    this.recoilRemaining = BlasterTuning.recoilDuration;
+    this.shotId += 1;
     return true;
   }
 
   tick(deltaSeconds) {
     this.cooldownRemaining = Math.max(0, this.cooldownRemaining - deltaSeconds);
     this.muzzleFlashRemaining = Math.max(0, this.muzzleFlashRemaining - deltaSeconds);
+    this.recoilRemaining = Math.max(0, this.recoilRemaining - deltaSeconds);
   }
 }

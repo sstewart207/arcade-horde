@@ -58,11 +58,15 @@ export class Game {
   getDebugSnapshot() {
     return {
       position: { ...this.#player.position },
+      velocity: { ...this.#player.velocity },
       health: this.#playerVitals.health,
       isGameOver: this.#isGameOver,
       isRunActive: this.#isRunActive,
       kills: this.#runStats.kills,
       facingRadians: this.#player.facingRadians,
+      moveFacingRadians: this.#player.moveFacingRadians,
+      locomotion: this.#player.locomotion,
+      dashTrailCount: this.#player.dashTrail.length,
       isDashing: this.#player.isDashing,
       dashCooldownRemaining: this.#player.dashCooldownRemaining,
       projectileCount: this.#projectileSystem.projectiles.length,
@@ -80,6 +84,8 @@ export class Game {
         shotCount: this.#blaster.shotCount,
         projectileDamage: this.#blaster.projectileDamage,
         healthOnKill: this.#blaster.healthOnKill,
+        recoilRemaining: this.#blaster.recoilRemaining,
+        shotId: this.#blaster.shotId,
       },
       zombies: this.#enemySystem.zombies.map((zombie) => ({
         position: { ...zombie.position },

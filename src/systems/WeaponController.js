@@ -1,4 +1,5 @@
 import { BlasterTuning } from "../core/Constants.js";
+import { getMuzzlePosition } from "../core/CombatGeometry.js";
 import { Projectile } from "../entities/Projectile.js";
 
 export class WeaponController {
@@ -19,13 +20,10 @@ export class WeaponController {
       return;
     }
 
-    const muzzleDistance = player.radius + BlasterTuning.projectileRadius + 8;
     for (const direction of shotDirections(player.facingRadians, this.#blaster.shotCount)) {
+      const muzzle = getMuzzlePosition(player, Math.atan2(direction.y, direction.x));
       this.#projectileSystem.projectiles.push(new Projectile(
-        {
-          x: player.position.x + direction.x * muzzleDistance,
-          y: player.position.y + direction.y * muzzleDistance,
-        },
+        muzzle,
         direction,
         BlasterTuning.projectileSpeed,
         BlasterTuning.projectileRadius,
