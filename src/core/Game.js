@@ -64,7 +64,14 @@ export class Game {
   getDebugSnapshot() {
     return {
       position: { ...this.#player.position },
-      arena: { width: Arena.width, height: Arena.height },
+      arena: {
+        left: Arena.left,
+        top: Arena.top,
+        width: Arena.width,
+        height: Arena.height,
+        right: Arena.right,
+        bottom: Arena.bottom,
+      },
       velocity: { ...this.#player.velocity },
       health: this.#playerVitals.health,
       isGameOver: this.#isGameOver,
@@ -169,7 +176,7 @@ export class Game {
   };
 
   #startRun(startImmediately = false) {
-    this.#player = new Player(Arena.width / 2, Arena.height / 2);
+    this.#player = new Player(Arena.centerX, Arena.centerY);
     this.#playerVitals = new PlayerVitals();
     this.#blaster = new Blaster();
     this.#projectileSystem = new ProjectileSystem();
@@ -207,8 +214,8 @@ export class Game {
 
   #constrainEntitiesToArena = () => {
     const edge = Arena.padding + this.#player.radius;
-    this.#player.position.x = clamp(this.#player.position.x, edge, Arena.width - edge);
-    this.#player.position.y = clamp(this.#player.position.y, edge, Arena.height - edge);
+    this.#player.position.x = clamp(this.#player.position.x, Arena.left + edge, Arena.right - edge);
+    this.#player.position.y = clamp(this.#player.position.y, Arena.top + edge, Arena.bottom - edge);
     this.#enemySystem.clampToArena();
     this.#pickupSystem.clampToArena();
   };

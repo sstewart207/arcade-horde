@@ -36,17 +36,17 @@ export class ProjectileSystem {
 
   #isOutsideArena(projectile) {
     const edge = Arena.padding + projectile.radius;
-    return projectile.position.x < edge
-      || projectile.position.x > Arena.width - edge
-      || projectile.position.y < edge
-      || projectile.position.y > Arena.height - edge;
+    return projectile.position.x < Arena.left + edge
+      || projectile.position.x > Arena.right - edge
+      || projectile.position.y < Arena.top + edge
+      || projectile.position.y > Arena.bottom - edge;
   }
 
   #clampToArena(position) {
     const edge = Arena.padding;
     return {
-      x: clamp(position.x, edge, Arena.width - edge),
-      y: clamp(position.y, edge, Arena.height - edge),
+      x: clamp(position.x, Arena.left + edge, Arena.right - edge),
+      y: clamp(position.y, Arena.top + edge, Arena.bottom - edge),
     };
   }
 }

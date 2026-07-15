@@ -35,7 +35,7 @@ export class Renderer {
     this.#context.setTransform(1, 0, 0, 1, 0, 0);
     this.#context.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
     const scale = this.#viewport.scale * this.#viewport.pixelRatio;
-    this.#context.setTransform(scale, 0, 0, scale, 0, 0);
+    this.#context.setTransform(scale, 0, 0, scale, -Arena.left * scale, -Arena.top * scale);
     this.#drawArena();
     this.#zombieRenderer.draw(enemySystem.zombies);
     this.#projectileRenderer.drawImpacts(enemySystem.defeatBursts);
@@ -52,29 +52,33 @@ export class Renderer {
   }
 
   #drawArena() {
-    const { width, height, padding } = Arena;
+    const { left, top, right, bottom, width, height, padding } = Arena;
     const context = this.#context;
 
     context.fillStyle = "#263764";
-    context.fillRect(0, 0, width, height);
+    context.fillRect(left, top, width, height);
 
     context.strokeStyle = "rgb(246 241 209 / 12%)";
     context.lineWidth = 2;
-    for (let x = padding; x < width - padding; x += 64) {
+    for (let x = firstGridLine(left, padding); x < right - padding; x += 64) {
       context.beginPath();
-      context.moveTo(x, padding);
-      context.lineTo(x, height - padding);
+      context.moveTo(x, top + padding);
+      context.lineTo(x, bottom - padding);
       context.stroke();
     }
-    for (let y = padding; y < height - padding; y += 64) {
+    for (let y = firstGridLine(top, padding); y < bottom - padding; y += 64) {
       context.beginPath();
-      context.moveTo(padding, y);
-      context.lineTo(width - padding, y);
+      context.moveTo(left + padding, y);
+      context.lineTo(right - padding, y);
       context.stroke();
     }
 
     context.strokeStyle = "#f6f1d1";
     context.lineWidth = 4;
-    context.strokeRect(padding, padding, width - padding * 2, height - padding * 2);
+    context.strokeRect(left + padding, top + padding, width - padding * 2, height - padding * 2);
   }
+}
+
+function firstGridLine(edge, padding) {
+  return padding + Math.ceil((edge - padding) / 64) * 64;
 }

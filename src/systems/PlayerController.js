@@ -100,13 +100,13 @@ export class PlayerController {
     const previousPosition = { ...this.#player.position };
     this.#player.position.x = clamp(
       this.#player.position.x + velocity.x * deltaSeconds,
-      Arena.padding + radius,
-      Arena.width - Arena.padding - radius,
+      Arena.left + Arena.padding + radius,
+      Arena.right - Arena.padding - radius,
     );
     this.#player.position.y = clamp(
       this.#player.position.y + velocity.y * deltaSeconds,
-      Arena.padding + radius,
-      Arena.height - Arena.padding - radius,
+      Arena.top + Arena.padding + radius,
+      Arena.bottom - Arena.padding - radius,
     );
     return Math.hypot(
       this.#player.position.x - previousPosition.x,

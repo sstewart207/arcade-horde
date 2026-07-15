@@ -71,10 +71,10 @@ function getSpawnPoints() {
   const insetX = Arena.padding + 148;
   const insetY = Arena.padding + 128;
   return [
-    { x: insetX, y: insetY },
-    { x: Arena.width - insetX + 20, y: insetY + 10 },
-    { x: Arena.width - insetX, y: Arena.height - insetY + 8 },
-    { x: insetX + 10, y: Arena.height - insetY + 18 },
+    { x: Arena.left + insetX, y: Arena.top + insetY },
+    { x: Arena.right - insetX + 20, y: Arena.top + insetY + 10 },
+    { x: Arena.right - insetX, y: Arena.bottom - insetY + 8 },
+    { x: Arena.left + insetX + 10, y: Arena.bottom - insetY + 18 },
   ];
 }
 
@@ -133,8 +133,8 @@ function normalized(vector) {
 
 function clampPositionToArena(position, radius) {
   const edge = Arena.padding + radius;
-  position.x = clamp(position.x, edge, Arena.width - edge);
-  position.y = clamp(position.y, edge, Arena.height - edge);
+  position.x = clamp(position.x, Arena.left + edge, Arena.right - edge);
+  position.y = clamp(position.y, Arena.top + edge, Arena.bottom - edge);
 }
 
 function clamp(value, minimum, maximum) {

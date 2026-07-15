@@ -132,13 +132,31 @@ test("the responsive arena fills a non-16:9 window without changing world scale"
   await expect(canvas).toHaveCSS("width", "1600px");
   await expect(canvas).toHaveCSS("height", "800px");
   await expect.poll(() => getGameState(page).then((state) => state.arena)).toEqual({
+    left: -80,
+    top: 0,
     width: 1_440,
     height: 720,
+    right: 1_360,
+    bottom: 720,
   });
 
   await startRun(page);
   const state = await getGameState(page);
-  expect(state.position).toMatchObject({ x: 720, y: 360 });
+  expect(state.position).toMatchObject({ x: 640, y: 360 });
+});
+
+test("a 4:3 window gains vertical arena without squeezing the 16:9 playfield", async ({ page }) => {
+  await page.setViewportSize({ width: 1_024, height: 768 });
+  await page.goto("/?debug");
+
+  await expect.poll(() => getGameState(page).then((state) => state.arena)).toEqual({
+    left: 0,
+    top: -120,
+    width: 1_280,
+    height: 960,
+    right: 1_280,
+    bottom: 840,
+  });
 });
 
 test("resizing a run keeps existing pickups inside the responsive arena", async ({ page }) => {

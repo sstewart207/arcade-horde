@@ -52,8 +52,8 @@ export class PickupSystem {
   clampToArena() {
     for (const medkit of this.medkits) {
       const edge = Arena.padding + medkit.radius;
-      medkit.position.x = clamp(medkit.position.x, edge, Arena.width - edge);
-      medkit.position.y = clamp(medkit.position.y, edge, Arena.height - edge);
+      medkit.position.x = clamp(medkit.position.x, Arena.left + edge, Arena.right - edge);
+      medkit.position.y = clamp(medkit.position.y, Arena.top + edge, Arena.bottom - edge);
     }
   }
 }

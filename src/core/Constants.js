@@ -1,6 +1,12 @@
 export const Arena = {
+  left: 0,
+  top: 0,
   width: 1280,
   height: 720,
+  right: 1280,
+  bottom: 720,
+  centerX: 640,
+  centerY: 360,
   padding: 32,
 };
 
