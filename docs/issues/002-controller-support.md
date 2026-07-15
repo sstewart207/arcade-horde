@@ -12,8 +12,8 @@ Make Arcade Horde feel native on modern Xbox and PlayStation controllers in supp
 
 - Use the browser Gamepad API; do not add a controller library.
 - Support Xbox Series controllers and PlayStation 5 DualSense controllers through their standard button and axis layouts.
-- Left stick moves the player; right stick aims independently.
-- Right trigger fires; south button dashes; face buttons select wave upgrades.
+- Use a familiar twin-stick COD Zombies-style layout adapted for top-down play: left stick moves, right stick aims, and right trigger fires.
+- South button (A / Cross) dashes; D-pad or face buttons select wave upgrades; Menu / Options starts or restarts a run.
 - Apply a configurable stick dead zone and normalize stick input so diagonals are not faster.
 - Show a small controller-connected prompt and fall back cleanly to keyboard/mouse when no gamepad is active.
 - Preserve existing keyboard and mouse controls.
